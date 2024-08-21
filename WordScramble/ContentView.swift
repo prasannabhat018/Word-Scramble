@@ -44,6 +44,14 @@ struct ContentView: View {
             } message: {
                 Text(alertMessage)
             }
+            .toolbar {
+                Button {
+                    selectNewWord()
+                } label: {
+                    Label("Restart", systemImage: "restart")
+                }
+                .tint(.black)
+            }
             
         }
     }
@@ -142,6 +150,10 @@ extension ContentView {
             throw WordFormationError.invalid
         }
         
+        guard word.count > 2 else {
+            throw WordFormationError.short
+        }
+        
         guard isOriginal() else {
             throw WordFormationError.notOriginal
         }
@@ -166,7 +178,13 @@ extension ContentView {
         }
         let words = lines.split(separator: "\n")
         allWords = words.map { String($0) }
+        selectNewWord()
+    }
+    
+    private func selectNewWord() {
         rootword = allWords.randomElement() ?? ""
+        currentWord = ""
+        usedWords = []
     }
 }
 
@@ -175,6 +193,7 @@ enum WordFormationError: Error {
     case invalid
     case notPossible
     case notOriginal
+    case short
     
     func errorMessage(rootWord: String) -> String {
         switch self {
@@ -186,6 +205,8 @@ enum WordFormationError: Error {
             "You can't spell that word from '\(rootWord)'!"
         case .notOriginal:
             "Be more original"
+        case .short:
+            "Word length should be atlest 3"
         }
     }
     
@@ -199,6 +220,8 @@ enum WordFormationError: Error {
             "Word not possible"
         case .notOriginal:
             "Word used already"
+        case .short:
+            "To Short"
         }
     }
 }
